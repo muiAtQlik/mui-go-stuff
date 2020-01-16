@@ -81,9 +81,33 @@ func TestGetAllItems(t *testing.T) {
 }
 
 func TestAddAndDeleteEvent(t *testing.T) {
-	jsonData := map[string]string{"ID": "666", "Title": "Evil Number", "Description": "NUmber of the beast"}
-	jsonDataBytes, _ := json.Marshal(jsonData)
-	responce, err = http.Post("http://localhost:8080/event", "application/json", bytes.NewBuffer(jsonDataBytes))
 
-)
+	// Create an event
+	jsonData := map[string]string{"ID": "666", "Title": "Evil Number", "Description": "NUmber of the beast"}
+	fmt.Println(jsonData)
+	jsonDataBytes, _ := json.Marshal(jsonData)
+	response, err := http.Post("http://localhost:8080/event", "application/json", bytes.NewBuffer(jsonDataBytes))
+
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	}
+	if response.StatusCode != http.StatusCreated {
+		t.Errorf("Expected status code: %v but got %v", http.StatusCreated, response.Status)
+	}
+
+	data, _ := ioutil.ReadAll(response.Body)
+	expected := `{"ID":"666","Title":"Evil Number","Description":"NUmber of the beast"}`
+
+	body := removeUnprintableChars(string(data))
+
+	if body != expected {
+		t.Errorf("Expected body: %v but got %v", expected, body)
+	}
+
+	//fetch all event and verify
+
+	//delete an event
+
+	//fetch all event and verify
+
 }
