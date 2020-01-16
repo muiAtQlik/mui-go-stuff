@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -80,5 +81,9 @@ func TestGetAllItems(t *testing.T) {
 }
 
 func TestAddAndDeleteEvent(t *testing.T) {
-	// To be done
+	jsonData := map[string]string{"ID": "666", "Title": "Evil Number", "Description": "NUmber of the beast"}
+	jsonDataBytes, _ := json.Marshal(jsonData)
+	responce, err = http.Post("http://localhost:8080/event", "application/json", bytes.NewBuffer(jsonDataBytes))
+
+)
 }
