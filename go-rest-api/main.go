@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -55,9 +56,10 @@ func getOneEvent(w http.ResponseWriter, r *http.Request) {
 
 	//eventID := mux.Vars(r)["id"]
 
-	// Use the URÖ to get the index (since the old way didn't work with the api test)
+	// Use the URL to get the index (since the old way didn't work with the api test)
 	p := r.URL.Path
-	eventID := p[len(p)-1:]
+	parts := strings.Split(p, "/")
+	eventID := parts[len(parts)-1]
 
 	for _, singleEvent := range events {
 		if singleEvent.ID == eventID {
@@ -90,8 +92,10 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteEvent(w http.ResponseWriter, r *http.Request) {
-	eventID := mux.Vars(r)["id"]
-
+	//eventID := mux.Vars(r)["id"]
+	p := r.URL.Path
+	parts := strings.Split(p, "/")
+	eventID := parts[len(parts)-1]
 	for i, singleEvent := range events {
 		if singleEvent.ID == eventID {
 			events = append(events[:i], events[i+1:]...)

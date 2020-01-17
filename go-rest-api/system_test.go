@@ -84,7 +84,6 @@ func TestAddAndDeleteEvent(t *testing.T) {
 
 	// Create an event
 	jsonData := map[string]string{"ID": "666", "Title": "Evil Number", "Description": "NUmber of the beast"}
-	fmt.Println(jsonData)
 	jsonDataBytes, _ := json.Marshal(jsonData)
 	response, err := http.Post("http://localhost:8080/event", "application/json", bytes.NewBuffer(jsonDataBytes))
 
@@ -104,10 +103,66 @@ func TestAddAndDeleteEvent(t *testing.T) {
 		t.Errorf("Expected body: %v but got %v", expected, body)
 	}
 
-	//fetch all event and verify
+	// fetch all event and verify
+	response, err = http.Get("http://localhost:8080/events")
 
-	//delete an event
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+		t.Fatal(err)
+	}
 
-	//fetch all event and verify
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code: %v but got %v", http.StatusOK, response.Status)
+	}
 
+	data, _ = ioutil.ReadAll(response.Body)
+	body = removeUnprintableChars(string(data))
+
+	expected = `[{"ID":"1","Title":"Introduction to Golang","Description":"intro stuff"},{"ID":"2","Title":"A nice title","Description":"Some description goes here"},{"ID":"666","Title":"Evil Number","Description":"NUmber of the beast"}]`
+
+	if body != expected {
+		t.Errorf("Expected\n%v\nbut got\n%v", expected, body)
+	}
+
+	// delete an event
+	client := &http.Client{}
+
+	request, error := http.NewRequest("DELETE", "http://localhost:8080/event/666", nil)
+
+	if error != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+		t.Fatal(err)
+	}
+
+	response, err = client.Do(request)
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code: %v but got %v", http.StatusOK, response.Status)
+	}
+
+	// fetch all event and verify that the new event is deleted
+
+	response, err = http.Get("http://localhost:8080/events")
+
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+		t.Fatal(err)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code: %v but got %v", http.StatusOK, response.Status)
+	}
+
+	data, err = ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Printf("failed to read the body %s\n", err)
+		t.Fatal(err)
+	}
+
+	actual := removeUnprintableChars(string(data))
+	expected = `[{"ID":"1","Title":"Introduction to Golang","Description":"intro stuff"},{"ID":"2","Title":"A nice title","Description":"Some description goes here"}]`
+
+	if expected != actual {
+		t.Errorf("Expected:\n%v\nbut got:\n%v", expected, actual)
+	}
 }
